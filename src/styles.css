@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+p {
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.info {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.info-item {
+    font-size: 18px;
+    color: #333;
+}
+
+.info-item span:first-child {
+    font-weight: bold;
+    color: #555;
+}
+
+#position, #moves {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+}
+
+.cell {
+    aspect-ratio: 1;
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.cell:hover {
+    background-color: #f8f9fa;
+}
+
+.cell.active {
+    background-color: #e7f5ff;
+    border-color: #339af0;
+    box-shadow: 0 0 10px rgba(51, 154, 240, 0.3);
+}
+
+/* СТИЛИ ДЛЯ ИЗОБРАЖЕНИЯ ГНОМА */
+.gnome {
+    width: 80%;
+    height: 80%;
+    object-fit: contain; /* Важно: сохраняет пропорции изображения */
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+/* Анимация плавания */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+    75% {
+        transform: translateY(5px) rotate(-2deg);
+    }
+}
+
+/* Дополнительная анимация для активной клетки */
+.cell.active .gnome {
+    animation: float 2s ease-in-out infinite, glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: 
+            drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3))
+            drop-shadow(0 0 5px rgba(51, 154, 240, 0.5));
+    }
+    50% {
+        filter: 
+            drop-shadow(0 5px 15px rgba(0, 0, 0, 0.4))
+            drop-shadow(0 0 10px rgba(51, 154, 240, 0.8));
+    }
+}
+
+.cell-label {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.instructions {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.instructions h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.instructions ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.instructions li {
+    padding: 8px 0;
+    color: #555;
+    position: relative;
+    padding-left: 25px;
+}
+
+.instructions li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .game-board {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 300px;
+    }
+    
+    .info {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .gnome {
+        width: 70%;
+        height: 70%;
+    }
+}
+
+/* Запасной вариант если изображение не загрузится */
+.gnome::after {
+    content: "🧙";
+    display: none;
+    font-size: 2em;
+}
+
+.gnome[src=""],
+.gnome:not([src]) {
+    position: relative;
+}
+
+.gnome[src=""]::after,
+.gnome:not([src])::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
