@@ -1,56 +1,40 @@
-name: Deploy to GitHub Pages
+name: GitHub Pages Deploy
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           
-      - name: Install dependencies
+      - run: yarn install
+      - run: yarn build
+      
+      - name: Create deployment directory
         run: |
-          npm install -g yarn
-          yarn install --frozen-lockfile
+          mkdir -p deploy
+          cp -r dist/* deploy/
+          cd deploy
+          echo "Deployment files:" && ls -la
           
-      - name: Build
-        run: yarn build
-        
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions@github.com"
-          
-      - name: Deploy
+      - name: Deploy via curl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Создаем временную директорию для деплоя
-          mkdir -p /tmp/gh-pages-deploy
-          cd /tmp/gh-pages-deploy
+          # Создаем архив
+          cd deploy
+          tar -czf ../site.tar.gz .
           
-          # Клонируем репозиторий с токеном
-          git clone --branch gh-pages --single-branch "https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git" .
-          
-          # Удаляем все файлы кроме .git
-          rm -rf *
-          
-          # Копируем собранные файлы
-          cp -r "${{ github.workspace }}/dist/"* .
-          
-          # Добавляем .nojekyll чтобы GitHub Pages не использовал Jekyll
-          touch .nojekyll
-          
-          # Коммитим и пушим
-          git add .
-          git commit -m "Deploy: ${{ github.sha }}"
-          git push origin gh-pages
+          # Создаем деплой через GitHub API
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}'
