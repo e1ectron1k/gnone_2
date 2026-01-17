@@ -10,31 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           
-      - run: yarn install
-      - run: yarn build
-      
-      - name: Create deployment directory
-        run: |
-          mkdir -p deploy
-          cp -r dist/* deploy/
-          cd deploy
-          echo "Deployment files:" && ls -la
-          
-      - name: Deploy via curl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Создаем архив
-          cd deploy
-          tar -czf ../site.tar.gz .
-          
-          # Создаем деплой через GitHub API
-          curl -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages/builds" \
-            -d '{"source":{"branch":"gh-pages","path":"/"}}'
+      - name: Install dependencies with yarn
+        run: yarn install --frozen-lockfile
+        
+      - name: Build project with yarn
+        run: yarn build
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist   # Укажите папку сборки вашего проекта
+          publish_branch: main
