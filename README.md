@@ -1,9 +1,43 @@
-# DOM Игра - Перемещение элемента
+# Игра с гоблинами
 
-![Build Status](https://github.com/e1ectron1k/dom-game-simple/actions/workflows/deploy.yml/badge.svg)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://e1ectron1k.github.io/dom-game-simple/)
+[![Build Status](https://github.com/ваш-логин/goblin-game/actions/workflows/deploy.yml/badge.svg)](https://github.com/ваш-логин/goblin-game/actions/workflows/deploy.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://ваш-логин.github.io/goblin-game/)
 
-## Демо
-Проект размещен на GitHub Pages: [https://e1ectron1k.github.io/dom-game-simple/](https://e1ectron1k.github.io/dom-game-simple/)
+Игра, в которой нужно ловить гоблинов, появляющихся в случайных клетках игрового поля.
 
-...
+## 🎮 Демо
+
+Игра доступна на GitHub Pages: [https://ваш-логин.github.io/goblin-game/](https://ваш-логин.github.io/goblin-game/)
+
+## 🎯 Правила игры
+
+1. Гоблин появляется в случайной клетке на 1 секунду
+2. Кликните по гоблину курсором-молотком
+3. За каждого пойманного гоблина +1 очко
+4. Если пропустить 5 гоблинов - игра окончена
+5. Управление: пробел - пауза, R - рестарт
+
+## 🛠 Технологии
+
+- JavaScript (ES6+)
+- Webpack 5
+- Yarn 1 (менеджер пакетов)
+- Babel
+- ESLint
+- GitHub Actions для CI/CD
+- GitHub Pages для хостинга
+
+## 🚀 Локальный запуск
+
+```bash
+# Установка зависимостей (используется Yarn)
+yarn install
+
+# Запуск в режиме разработки
+yarn start
+
+# Сборка для production
+yarn build
+
+# Проверка кодстайла
+yarn lint
