@@ -1,29 +1,40 @@
-name: GitHub Pages Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
-      - name: Install dependencies with yarn
-        run: yarn install --frozen-lockfile
-        
-      - name: Build project with yarn
-        run: yarn build
-        
+
+      - name: Install dependencies (using yarn)
+        run: |
+          # Если есть yarn.lock, используем yarn
+          if [ -f "yarn.lock" ]; then
+            yarn install --frozen-lockfile
+          else
+            npm ci
+          fi
+
+      - name: Build project
+        run: |
+          # Если есть скрипт build в package.json, запускаем его
+          if [ -f "package.json" ]; then
+            npm run build
+          fi
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist   # Укажите папку сборки вашего проекта
-          publish_branch: main
+          # Указываем папку, которую нужно задеплоить (папка сборки)
+          publish_dir: ./dist
+          publish_branch: gh-pages
