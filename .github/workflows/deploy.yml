@@ -9,32 +9,69 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install dependencies (using yarn)
+          
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Create environment-specific webpack config
         run: |
-          # Если есть yarn.lock, используем yarn
-          if [ -f "yarn.lock" ]; then
-            yarn install --frozen-lockfile
-          else
-            npm ci
-          fi
-
+          # Создаем конфиг для production с правильным publicPath
+          REPO_NAME=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          echo "Repository name: $REPO_NAME"
+          
+          cat > webpack.prod.js << 'EOF'
+          const path = require('path');
+          const HtmlWebpackPlugin = require('html-webpack-plugin');
+          const webpackConfig = require('./webpack.config.js');
+          
+          module.exports = {
+            ...webpackConfig,
+            mode: 'production',
+            output: {
+              ...webpackConfig.output,
+              publicPath: '/$REPO_NAME/', // Динамический путь
+            },
+          };
+          EOF
+      
       - name: Build project
+        run: yarn build
+        env:
+          NODE_ENV: production
+      
+      - name: Fix paths in index.html
         run: |
-          # Если есть скрипт build в package.json, запускаем его
-          if [ -f "package.json" ]; then
-            npm run build
+          # Убедимся, что пути относительные
+          if [ -f "dist/index.html" ]; then
+            sed -i 's|src="/|src="./|g' dist/index.html
+            sed -i 's|href="/|href="./|g' dist/index.html
           fi
-
+      
+      - name: Add .nojekyll and CNAME
+        run: |
+          touch dist/.nojekyll
+          echo "e1ectron1k.github.io/gnone_2" > dist/CNAME
+      
+      - name: Verify build
+        run: |
+          echo "=== DIST CONTENTS ==="
+          ls -la dist/
+          echo ""
+          echo "=== INDEX.HTML HEAD ==="
+          head -20 dist/index.html
+          echo ""
+          echo "=== BUNDLE.JS SIZE ==="
+          ls -lh dist/bundle.js || echo "No bundle.js"
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Указываем папку, которую нужно задеплоить (папка сборки)
           publish_dir: ./dist
           publish_branch: gh-pages
+          force_orphan: true

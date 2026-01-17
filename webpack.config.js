@@ -7,6 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true,
+    publicPath: '/', // КРИТИЧНО для GitHub Pages
   },
   module: {
     rules: [
@@ -25,7 +26,7 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/[name][ext]',
+          filename: 'assets/[name][hash][ext]', // Хеши для кеша
         },
       },
     ],
@@ -33,6 +34,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
+      filename: 'index.html',
+      inject: 'body', // Добавляет скрипт в body
     }),
   ],
   devServer: {
@@ -42,5 +45,7 @@ module.exports = {
     compress: true,
     port: 9000,
     hot: true,
+    historyApiFallback: true, // Для SPA на GitHub Pages
   },
+  mode: 'production',
 };
