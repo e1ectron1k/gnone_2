@@ -103,12 +103,8 @@ body {
     color: #72ff7d;
 }
 
-#status.playing {
+#status {
     color: #72ff7d;
-}
-
-#status.paused {
-    color: #ffcc00;
 }
 
 #status.game-over {
@@ -231,7 +227,9 @@ body {
 }
 
 .goblin {
-    font-size: 3.5em;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
     animation: bounce 1s infinite;
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
     user-select: none;
@@ -327,7 +325,8 @@ body {
     }
     
     .goblin {
-        font-size: 2.5em;
+        width: 70%;
+        height: 70%;
     }
 }
 

@@ -1,52 +1,35 @@
-name: Build and Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Install Yarn
-        run: npm install -g yarn
-          
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
         
-      - name: Check files
-        run: |
-          echo "=== File structure ==="
-          ls -la
-          echo "=== Source files ==="
-          ls -la src/
-          echo "=== package.json ==="
-          cat package.json | grep -A5 '"scripts"'
-        
-      - name: Try build
-        run: |
-          yarn build || echo "Build failed"
-          echo "Build attempt completed"
-          
-      - name: List dist if exists
-        run: |
-          if [ -d "dist" ]; then
-            echo "Dist folder exists:"
-            ls -la dist/
-          else
-            echo "ERROR: No dist folder created!"
-          fi
-          
-      - name: Deploy
-        if: success()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+    - name: Install Yarn
+      run: npm install -g yarn
+    
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+      
+    - name: Build
+      run: yarn build
+      
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: dist
+        branch: gh-pages
+        clean: true
