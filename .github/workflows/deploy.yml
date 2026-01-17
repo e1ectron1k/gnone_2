@@ -2,8 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,23 +11,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install Yarn
-        run: npm install -g yarn
-
-      - name: Install Dependencies
-        run: yarn install
-
+          
+      - name: Install dependencies
+        run: |
+          npm install -g yarn
+          yarn install --frozen-lockfile
+          
       - name: Build
         run: yarn build
-
+        
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Создаем временную директорию для деплоя
+          mkdir -p /tmp/gh-pages-deploy
+          cd /tmp/gh-pages-deploy
+          
+          # Клонируем репозиторий с токеном
+          git clone --branch gh-pages --single-branch "https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git" .
+          
+          # Удаляем все файлы кроме .git
+          rm -rf *
+          
+          # Копируем собранные файлы
+          cp -r "${{ github.workspace }}/dist/"* .
+          
+          # Добавляем .nojekyll чтобы GitHub Pages не использовал Jekyll
+          touch .nojekyll
+          
+          # Коммитим и пушим
+          git add .
+          git commit -m "Deploy: ${{ github.sha }}"
+          git push origin gh-pages
